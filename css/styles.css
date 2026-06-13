@@ -222,6 +222,19 @@ body.nav-open .nav-toggle span:nth-child(3) { top: 10px; transform: rotate(-45de
 .explore .card .row { font-size: .85rem; margin-top: .5rem; }
 .explore .card .row span { color: var(--ink-soft); display: block; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
 
+/* ---------- Experience ---------- */
+.exp-list-wrap { max-width: 920px; }
+.exp-item { padding: 2.2rem 0; border-top: 1px solid var(--line); }
+.exp-item:first-child { border-top: 0; }
+.exp-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+.exp-head h3 { font-family: var(--font-display); font-size: clamp(1.3rem,2.4vw,1.7rem); }
+.exp-co { color: var(--accent); font-size: .92rem; margin-top: .25rem; font-weight: 400; }
+.exp-date { font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); white-space: nowrap; padding-top: .3rem; }
+.exp-bullets { display: grid; gap: .8rem; }
+.exp-bullets li { position: relative; padding-left: 1.5rem; color: var(--ink); font-size: .98rem; }
+.exp-bullets li::before { content: ""; position: absolute; left: 0; top: .62em; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.exp-bullets li b { font-weight: 500; color: var(--accent); }
+
 /* ---------- Gallery + lightbox ---------- */
 .gallery { display: grid; grid-template-columns: repeat(12, 1fr); gap: clamp(.7rem,1.4vw,1.1rem); }
 .gallery figure { position: relative; overflow: hidden; border-radius: var(--radius); background: var(--bg-soft); cursor: zoom-in; grid-column: span 6; }
