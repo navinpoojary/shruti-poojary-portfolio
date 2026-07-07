@@ -24,18 +24,28 @@
     a.addEventListener("click", function () { document.body.classList.remove("nav-open"); });
   });
 
-  /* ---- Scroll reveal ---- */
-  var reveals = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window && reveals.length) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.12, rootMargin: "0px 0px -8% 0px" });
-    reveals.forEach(function (el) { io.observe(el); });
-  } else {
-    reveals.forEach(function (el) { el.classList.add("in"); });
+  /* ---- Scroll reveal (position-based; robust where IntersectionObserver stalls) ---- */
+  var reveals = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+  function revealInView() {
+    if (!reveals.length) return;
+    var vh = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0);
+    if (!vh) { /* degenerate viewport: show everything rather than hide content */
+      reveals.forEach(function (el) { el.classList.add("in"); });
+      reveals = [];
+      return;
+    }
+    var limit = vh * 0.94;
+    reveals = reveals.filter(function (el) {
+      if (el.getBoundingClientRect().top < limit) { el.classList.add("in"); return false; }
+      return true;
+    });
   }
+  window.addEventListener("scroll", revealInView, { passive: true });
+  window.addEventListener("resize", revealInView, { passive: true });
+  window.addEventListener("load", revealInView);
+  revealInView();
+  /* Safety net: never leave content hidden */
+  setTimeout(revealInView, 600);
 
   /* ---- Lightbox gallery ---- */
   var figures = Array.prototype.slice.call(document.querySelectorAll(".gallery figure"));
