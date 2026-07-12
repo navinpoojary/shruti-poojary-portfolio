@@ -94,17 +94,45 @@
     });
   }
 
-  /* ---- Contact form (front-end only) ---- */
+  /* ---- Contact form (FormSubmit.co AJAX) ---- */
   var form = document.querySelector(".form");
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       var btn = form.querySelector("button[type=submit]");
       var original = btn.textContent;
-      btn.textContent = "Message sent ✓";
+      btn.textContent = "Sending…";
       btn.disabled = true;
-      form.reset();
-      setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 3200);
+
+      var payload = {
+        name: form.querySelector("#name").value,
+        email: form.querySelector("#email").value,
+        subject: form.querySelector("#subject").value,
+        message: form.querySelector("#message").value,
+        _subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
+        _template: "table"
+      };
+
+      fetch("https://formsubmit.co/ajax/shruti@shrutipoojary.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success === "true" || data.success === true) {
+            btn.textContent = "Message sent ✓";
+            form.reset();
+          } else {
+            throw new Error(data.message || "send failed");
+          }
+        })
+        .catch(function () {
+          btn.textContent = "Failed — email me directly";
+        })
+        .finally(function () {
+          setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 4000);
+        });
     });
   }
 
