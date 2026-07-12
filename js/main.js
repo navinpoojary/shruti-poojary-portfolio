@@ -105,15 +105,15 @@
       btn.disabled = true;
 
       var payload = {
+        access_key: "63bab4ce-bd33-4ad7-b2d8-c7c4cb563430",
         name: form.querySelector("#name").value,
         email: form.querySelector("#email").value,
-        subject: form.querySelector("#subject").value,
+        subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
         message: form.querySelector("#message").value,
-        _subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
-        _template: "table"
+        from_name: "shrutipoojary.com contact form"
       };
 
-      fetch("https://formsubmit.co/ajax/shruti@shrutipoojary.com", {
+      fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload)
