@@ -94,7 +94,7 @@
     });
   }
 
-  /* ---- Contact form (Web3Forms AJAX, with mailto fallback) ---- */
+  /* ---- Contact form (FormSubmit AJAX → shruti@shrutipoojary.com, mailto fallback) ---- */
   var form = document.querySelector(".form");
   if (form) {
     var DEST_EMAIL = "shruti@shrutipoojary.com";
@@ -134,18 +134,20 @@
         setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 4000);
       }
 
+      /* FormSubmit delivers to the address baked into the endpoint URL, so
+         mail can only ever go to shruti@shrutipoojary.com. */
       var payload = {
-        access_key: "63bab4ce-bd33-4ad7-b2d8-c7c4cb563430",
         name: name,
         email: email,
-        replyto: email,
-        subject: subject,
+        _replyto: email,
+        _subject: subject,
         message: message,
-        from_name: "shrutipoojary.com contact form",
+        _template: "table",
+        _captcha: "false",
         botcheck: ""
       };
 
-      fetch("https://api.web3forms.com/submit", {
+      fetch("https://formsubmit.co/ajax/" + DEST_EMAIL, {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload)
