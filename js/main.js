@@ -97,7 +97,7 @@
   /* ---- Contact form (FormSubmit AJAX → shruti@shrutipoojary.com, mailto fallback) ---- */
   var form = document.querySelector(".form");
   if (form) {
-    var DEST_EMAIL = "shruti@shrutipoojary.com";
+    var DEST_EMAIL = "shrutixpoojary@gmail.com";
 
     /* Build a pre-filled mailto so a message is never lost if the API is
        blocked, unverified, or silently dropping mail. */
