@@ -94,23 +94,55 @@
     });
   }
 
-  /* ---- Contact form (FormSubmit.co AJAX) ---- */
+  /* ---- Contact form (Web3Forms AJAX, with mailto fallback) ---- */
   var form = document.querySelector(".form");
   if (form) {
+    var DEST_EMAIL = "shruti@shrutipoojary.com";
+
+    /* Build a pre-filled mailto so a message is never lost if the API is
+       blocked, unverified, or silently dropping mail. */
+    function mailtoFallback(name, email, subject, message) {
+      var body =
+        "Name: " + name + "\n" +
+        "Email: " + email + "\n\n" +
+        message;
+      return "mailto:" + DEST_EMAIL +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+
+      /* Honeypot: real users leave this empty; bots fill it. */
+      var trap = form.querySelector("[name=botcheck]");
+      if (trap && trap.checked) return;
+
       var btn = form.querySelector("button[type=submit]");
       var original = btn.textContent;
       btn.textContent = "Sending…";
       btn.disabled = true;
 
+      var name = form.querySelector("#name").value.trim();
+      var email = form.querySelector("#email").value.trim();
+      var subject = "Portfolio contact: " + (form.querySelector("#subject").value.trim() || "New message");
+      var message = form.querySelector("#message").value.trim();
+
+      function fallback() {
+        btn.textContent = "Opening your email app…";
+        window.location.href = mailtoFallback(name, email, subject, message);
+        setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 4000);
+      }
+
       var payload = {
         access_key: "63bab4ce-bd33-4ad7-b2d8-c7c4cb563430",
-        name: form.querySelector("#name").value,
-        email: form.querySelector("#email").value,
-        subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
-        message: form.querySelector("#message").value,
-        from_name: "shrutipoojary.com contact form"
+        name: name,
+        email: email,
+        replyto: email,
+        subject: subject,
+        message: message,
+        from_name: "shrutipoojary.com contact form",
+        botcheck: ""
       };
 
       fetch("https://api.web3forms.com/submit", {
@@ -123,15 +155,14 @@
           if (data.success === "true" || data.success === true) {
             btn.textContent = "Message sent ✓";
             form.reset();
+            setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 4000);
           } else {
-            throw new Error(data.message || "send failed");
+            fallback();
           }
         })
         .catch(function () {
-          btn.textContent = "Failed — email me directly";
-        })
-        .finally(function () {
-          setTimeout(function () { btn.textContent = original; btn.disabled = false; }, 4000);
+          /* Network/API blocked — hand off to the visitor's email client. */
+          fallback();
         });
     });
   }
