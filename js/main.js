@@ -94,7 +94,9 @@
     });
   }
 
-  /* ---- Contact form (Formspree AJAX) ---- */
+  /* ---- Contact form ----
+     Primary delivery: FormSubmit → shrutixpoojary@gmail.com (Gmail = reliable inbox).
+     Backup record: best-effort copy to the Formspree dashboard so nothing is ever lost. */
   var form = document.querySelector(".form");
   if (form) {
     form.addEventListener("submit", function (e) {
@@ -104,27 +106,39 @@
       btn.textContent = "Sending…";
       btn.disabled = true;
 
-      var payload = {
-        name: form.querySelector("#name").value,
-        email: form.querySelector("#email").value,
-        _replyto: form.querySelector("#email").value,
-        _subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
-        subject: form.querySelector("#subject").value,
-        message: form.querySelector("#message").value
-      };
+      var name = form.querySelector("#name").value;
+      var email = form.querySelector("#email").value;
+      var subject = form.querySelector("#subject").value;
+      var message = form.querySelector("#message").value;
 
+      // Backup: keep a record in the Formspree dashboard (fire-and-forget).
       fetch("https://formspree.io/f/mgogeoap", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ name: name, email: email, _replyto: email, subject: subject, message: message })
+      }).catch(function () {});
+
+      // Primary: deliver the email to the Gmail inbox.
+      fetch("https://formsubmit.co/ajax/shrutixpoojary@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          subject: subject,
+          message: message,
+          _subject: "Portfolio contact: " + (subject || "New message"),
+          _template: "table",
+          _replyto: email
+        })
       })
-        .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
-        .then(function (res) {
-          if (res.ok) {
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          if (data.success === "true" || data.success === true) {
             btn.textContent = "Message sent ✓";
             form.reset();
           } else {
-            throw new Error((res.data && res.data.error) || "send failed");
+            throw new Error(data.message || "send failed");
           }
         })
         .catch(function () {
