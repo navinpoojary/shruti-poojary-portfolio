@@ -94,7 +94,7 @@
     });
   }
 
-  /* ---- Contact form (FormSubmit.co AJAX) ---- */
+  /* ---- Contact form (Formspree AJAX) ---- */
   var form = document.querySelector(".form");
   if (form) {
     form.addEventListener("submit", function (e) {
@@ -105,26 +105,26 @@
       btn.disabled = true;
 
       var payload = {
-        access_key: "7411d1ee-5bf8-4bd1-898d-72d8b6c3144a",
         name: form.querySelector("#name").value,
         email: form.querySelector("#email").value,
-        subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
-        message: form.querySelector("#message").value,
-        from_name: "shrutipoojary.com contact form"
+        _replyto: form.querySelector("#email").value,
+        _subject: "Portfolio contact: " + (form.querySelector("#subject").value || "New message"),
+        subject: form.querySelector("#subject").value,
+        message: form.querySelector("#message").value
       };
 
-      fetch("https://api.web3forms.com/submit", {
+      fetch("https://formspree.io/f/mgogeoap", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
         body: JSON.stringify(payload)
       })
-        .then(function (r) { return r.json(); })
-        .then(function (data) {
-          if (data.success === "true" || data.success === true) {
+        .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+        .then(function (res) {
+          if (res.ok) {
             btn.textContent = "Message sent ✓";
             form.reset();
           } else {
-            throw new Error(data.message || "send failed");
+            throw new Error((res.data && res.data.error) || "send failed");
           }
         })
         .catch(function () {
